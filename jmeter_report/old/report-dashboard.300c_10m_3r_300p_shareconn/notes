@@ -1,0 +1,5 @@
+1. 300 threads
+2. 10 min
+3. redis: 1 master, 2 replicas, because of shared native connection all read goes to one replica
+4. lettuce pool: 300, min idle: 300, max idle: 300
+5. share native connection

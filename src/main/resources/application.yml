@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: redistest
+  zipkin:
+    baseUrl: http://vm-lijjin-nprd-rtp-2:9411/
+    service:
+      name: redistest
+server:
+  compression:
+    enabled: true
+
