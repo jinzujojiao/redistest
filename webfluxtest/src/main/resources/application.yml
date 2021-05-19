@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: webfluxtest
+  zipkin:
+    baseUrl: http://vm-lijjin-nprd-rtp-2:9411/
+    service:
+      name: webfluxtest
+server:
+  compression:
+    enabled: true
+
