@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: kafkaproducer
+  zipkin:
+    baseUrl: http://vm-lijjin-nprd-rtp-2:9411/
+    service:
+      name: kafkaproducer
+server:
+  compression:
+    enabled: true
+  tomcat:
+    threads:
+      max: 600
+    max-connections: 24000
+

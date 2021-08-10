@@ -11,6 +11,10 @@
     <modules>
         <module>webtest</module>
         <module>webfluxtest</module>
+        <module>kafkaproducer</module>
+        <module>kafkaconsumer</module>
+        <module>kafkacommon</module>
+        <module>gateway</module>
     </modules>
 
     <parent>
@@ -19,14 +23,5 @@
         <version>2.3.0.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

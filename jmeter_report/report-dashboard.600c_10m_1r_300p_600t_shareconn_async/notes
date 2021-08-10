@@ -1,0 +1,6 @@
+1. 600 threads
+2. 10 min
+3. redis: 1 master, all read goes to master
+4. lettuce pool: 300, min idle: 300, max idle: 300
+5. share native connection
+6. Tomcat maxThreads: 200

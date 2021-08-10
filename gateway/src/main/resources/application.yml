@@ -1,0 +1,10 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: producer_route
+          uri: http://kafkaproducer-service:8080
+          predicates:
+            - Path=/producer/**
+          filters:
+            - RewritePath=/producer/?(?<segment>.*), /producer/$\{segment}

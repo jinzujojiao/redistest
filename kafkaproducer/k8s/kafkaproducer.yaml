@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafkaproducer-service
+spec:
+  selector:
+    app: kafkaproducer
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafkaproducer-deployment
+  labels:
+    app: kafkaproducer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kafkaproducer
+  template:
+    metadata:
+      labels:
+        app: kafkaproducer
+    spec:
+      containers:
+        - name: kafkaproducer
+          image: 173.37.27.134:5000/local/kafkaproducer:1.0.0
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "8Gi"
+              cpu: "4000m"
+            limits:
+              memory: "8Gi"
+              cpu: "4000m"
