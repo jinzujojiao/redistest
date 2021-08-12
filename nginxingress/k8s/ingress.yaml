@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: produceringress
+  namespace: redistest
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: kafkaproducer-service
+                port:
+                  number: 8080
+            path: /producer
+            pathType: Prefix
