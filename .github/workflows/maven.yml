@@ -29,4 +29,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Unit test with Maven
-      run: mvn test
+      run: mvn test --file pom.xml
