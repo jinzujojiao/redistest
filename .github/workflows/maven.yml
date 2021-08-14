@@ -23,3 +23,10 @@ jobs:
         distribution: 'adopt'
     - name: Build with Maven
       run: mvn compile --file pom.xml
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Unit test with Maven
+      run: mvn test
