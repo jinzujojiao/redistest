@@ -17,8 +17,8 @@ import java.util.Map;
 
 @Configuration
 public class KafkaProducerConfig {
-    
-    @Bean
+
+    @Bean1
     public ProducerFactory<String, KafkaMessage> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
