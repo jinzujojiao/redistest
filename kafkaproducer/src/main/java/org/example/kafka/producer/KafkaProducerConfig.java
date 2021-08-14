@@ -18,7 +18,7 @@ import java.util.Map;
 @Configuration
 public class KafkaProducerConfig {
 
-    @Bean4
+    @Bean
     public ProducerFactory<String, KafkaMessage> producerFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
@@ -32,6 +32,7 @@ public class KafkaProducerConfig {
         //props.put(ProducerConfig.BATCH_SIZE_CONFIG, 0);
         //props.put(ProducerConfig.RETRIES_CONFIG, 10);
         // See https://kafka.apache.org/documentation/#producerconfigs for more properties
+
         return props;
     }
 
