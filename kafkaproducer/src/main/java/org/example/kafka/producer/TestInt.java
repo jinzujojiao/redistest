@@ -8,4 +8,8 @@ public class TestInt {
         int c = (int)(b % 3);
         System.out.println(c);
     }
+
+    public String hello() {
+        return "hello";
+    }
 }
