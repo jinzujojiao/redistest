@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TestIntTest {
 
     @Test
-    void helloSuccess() {
+    void helloTrue() {
         assertTrue(true);
     }
 
