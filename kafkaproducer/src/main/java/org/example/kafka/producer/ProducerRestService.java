@@ -4,6 +4,9 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.example.kafka.common.dto.AppRes;
 import org.example.kafka.common.dto.KafkaMessage;
 import org.example.kafka.common.dto.UserRoleMapping;
+import org.example.kafka.producer.dao.UserRoleDao;
+import org.example.kafka.producer.dao.exception.DaoException;
+import org.example.kafka.producer.dao.exception.DataNotExistException;
 import org.example.kafka.producer.template.AppResTemplate;
 import org.example.kafka.producer.template.UserRoleTemplate;
 import org.slf4j.Logger;
@@ -27,8 +30,15 @@ public class ProducerRestService {
     @Autowired
     private AppResTemplate appResTemplate;
 
+    @Autowired
+    private UserRoleDao userRoleDao;
+
     @PostMapping("/user2role")
-    public void user2Role(@RequestParam("user") String user, @RequestParam("role") String role) {
+    public void user2Role(@RequestParam("user") String user, @RequestParam("role") String role) throws DaoException {
+        if (userRoleDao.create(user, role) < 1) {
+            logger.warn("User-Role is not created for user {} and role {}", user, role);
+            return;
+        }
         UserRoleMapping userRoleMapping = new UserRoleMapping(user, role, KafkaMessage.Action.ADD, System.currentTimeMillis());
         ListenableFuture<SendResult<String, KafkaMessage>> future = userRoleTemplate.send(userRoleMapping);
         future.addCallback(new KafkaSendCallback<String, KafkaMessage>() {
