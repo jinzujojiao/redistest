@@ -10,4 +10,9 @@ class TestIntTest {
     void helloTrue() {
         assertTrue(true);
     }
+
+    @Test
+    void helloFail() {
+        assertFalse(false);
+    }
 }
