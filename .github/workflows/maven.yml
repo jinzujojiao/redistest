@@ -10,7 +10,7 @@ on:
     branches: [ '**' ]
 
 jobs:
-  build:
+  build_test:
 
     runs-on: ubuntu-latest
 
@@ -21,5 +21,11 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
+    - uses: actions/cache@v1
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
     - name: Build with Maven
-      run: mvn compile --file pom.xml
+      run: mvn test --file pom.xml
