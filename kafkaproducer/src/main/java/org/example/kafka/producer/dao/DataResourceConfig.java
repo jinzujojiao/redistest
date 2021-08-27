@@ -1,5 +1,7 @@
 package org.example.kafka.producer.dao;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -15,11 +17,15 @@ public class DataResourceConfig {
         String dbName = System.getenv("REDISTEST_DB_NAME");
         String dbUser = System.getenv("REDISTEST_DB_USER");
         String dbPasswd = System.getenv("REDISTEST_DB_PASSWD");
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.mariadb.jdbc.Driver");
-        dataSource.setUrl("jdbc:mariadb://"+dbHost+":"+dbPort+"/"+dbName);
-        dataSource.setUsername(dbUser);
-        dataSource.setPassword(dbPasswd);
+        String dbPoolSize = System.getenv("REDISTEST_DB_POOLSIZE");
+
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mariadb://"+dbHost+":"+dbPort+"/"+dbName);
+        config.setUsername(dbUser);
+        config.setPassword(dbPasswd);
+        config.addDataSourceProperty("maximumPoolSize", dbPoolSize);
+
+        HikariDataSource dataSource = new HikariDataSource(config);
 
         return dataSource;
     }
