@@ -22,8 +22,11 @@ public class RoleDao extends AbstractDao {
     public Role findRoleByName(String name) {
         Role role = null;
         try {
+            long bt = System.currentTimeMillis();
             role = jdbcTemplate.queryForObject("select * from roles where name=?",
                     new Object[]{name}, new RoleRowMapper());
+            long et = System.currentTimeMillis();
+            logger.info("findRoleByName cost {} ms", et-bt);
         } catch (EmptyResultDataAccessException emptyExp) {
             logger.warn("Role {} does not exist", name);
         }

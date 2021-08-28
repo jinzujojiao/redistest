@@ -22,8 +22,11 @@ public class UserDao extends AbstractDao {
     public User findUserByName(String name) {
         User user = null;
         try {
+            long bt = System.currentTimeMillis();
             user = jdbcTemplate.queryForObject("select * from users where name=?",
                     new Object[]{name}, new UserRowMapper());
+            long et = System.currentTimeMillis();
+            logger.info("findUserByName cost {} ms", et-bt);
         } catch (EmptyResultDataAccessException emptyExp) {
             logger.warn("User {} does not exist", name);
         }

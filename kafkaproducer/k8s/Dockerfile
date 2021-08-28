@@ -2,6 +2,7 @@ FROM openjdk:11
 RUN apt-get update \
   && apt-get install -y \
     net-tools \
+    less \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
