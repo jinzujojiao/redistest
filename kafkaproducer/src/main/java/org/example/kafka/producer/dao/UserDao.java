@@ -27,7 +27,7 @@ public class UserDao extends AbstractDao {
             user = slaveJdbcTemplate.queryForObject("select * from users where name=?",
                     new Object[]{name}, new UserRowMapper());
             long et = System.currentTimeMillis();
-            logger.info("findUserByName cost {} ms", et-bt);
+            //logger.info("findUserByName cost {} ms", et-bt);
         } catch (EmptyResultDataAccessException emptyExp) {
             logger.warn("User {} does not exist", name);
         }

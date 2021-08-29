@@ -43,7 +43,7 @@ public class UserRoleDao extends AbstractDao {
             int ret = masterJdbcTemplate.update("insert into user_role (userid, roleid) values(?,?)",
                     user.getId(), role.getId());
             long et = System.currentTimeMillis();
-            logger.info("create cost {} ms", et-bt);
+            //logger.info("create cost {} ms", et-bt);
             return ret;
         } catch (DuplicateKeyException e) {
             logger.warn("User {} is already in role {}", userName, roleName);
