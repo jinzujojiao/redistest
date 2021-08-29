@@ -24,8 +24,9 @@ public class UserRoleDao extends AbstractDao {
     private RoleDao roleDao;
 
     @Autowired
-    public UserRoleDao(DataSource redistestDataSource) {
-        super(redistestDataSource);
+    public UserRoleDao(DataSource masterDataSource, DataSource slaveDataSource) {
+
+        super(masterDataSource, slaveDataSource);
     }
 
     public int create(String userName, String roleName) throws DataNotExistException, DataExistException {
@@ -39,7 +40,7 @@ public class UserRoleDao extends AbstractDao {
 
         try {
             long bt = System.currentTimeMillis();
-            int ret = jdbcTemplate.update("insert into user_role (userid, roleid) values(?,?)",
+            int ret = masterJdbcTemplate.update("insert into user_role (userid, roleid) values(?,?)",
                     user.getId(), role.getId());
             long et = System.currentTimeMillis();
             logger.info("create cost {} ms", et-bt);
