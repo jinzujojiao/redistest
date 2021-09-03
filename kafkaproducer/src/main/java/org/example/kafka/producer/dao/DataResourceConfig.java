@@ -21,10 +21,13 @@ public class DataResourceConfig {
         String dbPasswd = System.getenv("MASTER_DB_PASSWD");
         String dbPoolSize = System.getenv("MASTER_DB_POOLSIZE");
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put("maximumPoolSize", dbPoolSize);
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mariadb://"+dbHost+":"+dbPort+"/"+dbName);
+        config.setUsername(dbUser);
+        config.setPassword(dbPasswd);
+        config.setMaximumPoolSize(Integer.valueOf(dbPoolSize));
 
-        return this.createDataSource(dbHost, dbPort, dbName, dbUser, dbPasswd, properties);
+        return new HikariDataSource(config);
     }
 
     @Bean
@@ -36,24 +39,13 @@ public class DataResourceConfig {
         String dbPasswd = System.getenv("SLAVE_DB_PASSWD");
         String dbPoolSize = System.getenv("SLAVE_DB_POOLSIZE");
 
-        Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put("maximumPoolSize", dbPoolSize);
-
-        return this.createDataSource(dbHost, dbPort, dbName, dbUser, dbPasswd, properties);
-    }
-
-    private DataSource createDataSource(
-            String dbHost, String dbPort, String dbName,
-            String dbUser, String dbPasswd,
-            Map<String, Object> properties) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:mariadb://"+dbHost+":"+dbPort+"/"+dbName);
         config.setUsername(dbUser);
         config.setPassword(dbPasswd);
-        for (Map.Entry<String, Object> entry : properties.entrySet()) {
-            config.addDataSourceProperty(entry.getKey(), entry.getValue());
-        }
+        config.setMaximumPoolSize(Integer.valueOf(dbPoolSize));
 
         return new HikariDataSource(config);
     }
+    
 }
