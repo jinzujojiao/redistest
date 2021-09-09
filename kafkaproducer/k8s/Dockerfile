@@ -15,7 +15,9 @@ RUN groupadd -r ${APP_USER} &&\
 
 
 RUN mkdir -p ${APP_ROOT} &&\
-    mkdir -p ${APP_ROOT}/lib
+    mkdir -p ${APP_ROOT}/lib &&\
+    mkdir -p ${APP_ROOT}/log &&\
+    touch ${APP_ROOT}/log/gc.log
 
 COPY target/${APP_JAR} ${APP_ROOT}/lib
 RUN chown -R ${APP_USER}:${APP_USER} ${APP_ROOT}
