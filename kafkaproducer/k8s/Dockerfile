@@ -22,4 +22,4 @@ RUN chown -R ${APP_USER}:${APP_USER} ${APP_ROOT}
 
 WORKDIR ${APP_ROOT}
 USER ${APP_USER}
-ENTRYPOINT java -Xlog:gc*=debug -jar ${APP_ROOT}/lib/${APP_JAR}
+ENTRYPOINT java -Xlog:gc*=debug:file=${APP_ROOT}/log/gc.log -jar ${APP_ROOT}/lib/${APP_JAR}
