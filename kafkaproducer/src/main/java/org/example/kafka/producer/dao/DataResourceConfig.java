@@ -47,5 +47,5 @@ public class DataResourceConfig {
 
         return new HikariDataSource(config);
     }
-    
+
 }
