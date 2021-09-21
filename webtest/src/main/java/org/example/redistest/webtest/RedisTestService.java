@@ -74,7 +74,7 @@ public class RedisTestService {
                 futures.add(commands.zrangebylex("appidx".getBytes(),
                         Range.from(Range.Boundary.including((app + "|").getBytes()),
                                 Range.Boundary.excluding((app + "}").getBytes()))));
-                futures.add(commands.zrangebylex("user2roleidx".getBytes(),
+                futures.add(commands.zrangebylex("kafkauser2roleidx".getBytes(),
                         Range.from(Range.Boundary.including((user + "|").getBytes()),
                                 Range.Boundary.excluding((user + "}").getBytes()))));
 
@@ -160,9 +160,9 @@ public class RedisTestService {
                                         logger.error("Fail to add future result to mappedResSet", e);
                                     }
                                 }
-                                if (mappedResSet.size() != 4) {
+                                /*if (mappedResSet.size() != 4) {
                                     logger.error("Wrong mappedResSet: {}", mappedResSet);
-                                }
+                                }*/
                                 return mappedResSet;
                             }
                         }, cachedThreadPool
@@ -183,9 +183,9 @@ public class RedisTestService {
                                         }
                                     }
                                 }
-                                if (resSet.size() != 194) {
+                                /*if (resSet.size() != 194) {
                                     logger.error("Wrong, mappedResSet: {}, resourceNodeMap: {}, resSet: {}", mappedResSet, resourceNodeMap, resSet);
-                                }
+                                }*/
                                 return resSet;
                             }
                         }, cachedThreadPool);
@@ -203,9 +203,11 @@ public class RedisTestService {
             releaseLettuceConnection(conn);
         }
 
-        if (ret.size() != 194) {
+        /*if (ret.size() != 194) {
             logger.error("Fail to process, ret: {}", ret);
-        }
+        }*/
+        long et = System.currentTimeMillis();
+        logger.info("Authz user {} with app {} cost {} ms", user, app, et-bt);
         return ret;
 
     }

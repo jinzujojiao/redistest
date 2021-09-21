@@ -8,4 +8,15 @@ spring:
 server:
   compression:
     enabled: true
-
+  tomcat:
+    threads:
+      max: 600
+    max-connections: 24000
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        exclude: "env,beans"
