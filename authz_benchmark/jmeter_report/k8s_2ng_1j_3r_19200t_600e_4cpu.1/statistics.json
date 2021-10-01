@@ -1,0 +1,50 @@
+{
+  "AuthzUserApp1" : {
+    "transaction" : "AuthzUserApp1",
+    "sampleCount" : 444077,
+    "errorCount" : 0,
+    "errorPct" : 0.0,
+    "meanResTime" : 2391.968386113224,
+    "medianResTime" : 3007.5,
+    "minResTime" : 6.0,
+    "maxResTime" : 10621.0,
+    "pct1ResTime" : 6679.9000000000015,
+    "pct2ResTime" : 7179.950000000001,
+    "pct3ResTime" : 7517.990000000002,
+    "throughput" : 487.2176903961249,
+    "receivedKBytesPerSec" : 3770.729549739496,
+    "sentKBytesPerSec" : 78.86351377227894
+  },
+  "AuthzUserApp2" : {
+    "transaction" : "AuthzUserApp2",
+    "sampleCount" : 476127,
+    "errorCount" : 0,
+    "errorPct" : 0.0,
+    "meanResTime" : 2292.6334003322672,
+    "medianResTime" : 2496.5,
+    "minResTime" : 5.0,
+    "maxResTime" : 10664.0,
+    "pct1ResTime" : 6032.700000000004,
+    "pct2ResTime" : 6698.0,
+    "pct3ResTime" : 7470.990000000002,
+    "throughput" : 522.1761479601629,
+    "receivedKBytesPerSec" : 4041.045203133414,
+    "sentKBytesPerSec" : 84.53065421754516
+  },
+  "Total" : {
+    "transaction" : "Total",
+    "sampleCount" : 920204,
+    "errorCount" : 0,
+    "errorPct" : 0.0,
+    "meanResTime" : 2340.571012514654,
+    "medianResTime" : 2571.0,
+    "minResTime" : 5.0,
+    "maxResTime" : 10664.0,
+    "pct1ResTime" : 7078.0,
+    "pct2ResTime" : 7362.0,
+    "pct3ResTime" : 7589.0,
+    "throughput" : 1003.0378769959572,
+    "receivedKBytesPerSec" : 7762.5854453999655,
+    "sentKBytesPerSec" : 162.36530755302658
+  }
+}
