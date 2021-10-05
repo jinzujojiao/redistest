@@ -1,6 +1,5 @@
 package org.example.redistest.webtest;
 
-import io.lettuce.core.LettuceFutures;
 import io.lettuce.core.Range;
 import io.lettuce.core.RedisFuture;
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 @RestController
@@ -227,7 +225,7 @@ public class RedisTestService {
                         strConn.zRangeByLex("user2roleidx",
                                 new RedisZSetCommands.Range().gte(user+"|").lt(user+"}"));
                         long et = System.currentTimeMillis();
-                        logger.info(seq+" app+u2r internal cost "+(et-bt));
+                        //logger.info(seq+" app+u2r internal cost "+(et-bt));
                         return null;
                     }
                 });
@@ -336,7 +334,7 @@ public class RedisTestService {
         }*/
 
         long et = System.currentTimeMillis();
-        logger.info(seq+" authorize cost "+(et-bt));
+        //logger.info(seq+" authorize cost "+(et-bt));
         return results;
     }
 
@@ -627,5 +625,164 @@ public class RedisTestService {
         long et = System.currentTimeMillis();
         logger.info(seq+" authorize cost "+(et-bt));
         return results;
+    }
+
+    @GetMapping("/authorize4/{user}")
+    public Set<String> authorize4(@PathVariable("user")String user, @RequestParam String app) {
+        long seq = random.nextLong();
+        long bt = System.currentTimeMillis();
+        long bt1 = bt;
+        Set<String> ret = new HashSet<>();
+        LettuceConnection conn = null;
+
+        try {
+            LettuceConnection connection = getLettuceConnection();
+            conn = connection;
+            if (null != connection) {
+
+                RedisClusterAsyncCommands<byte[], byte[]> commands = connection.getNativeConnection();
+                commands.setAutoFlushCommands(false);
+                List<RedisFuture<List<byte[]>>> futures = new ArrayList<RedisFuture<List<byte[]>>>();
+                futures.add(commands.zrangebylex("appidx".getBytes(),
+                        Range.from(Range.Boundary.including((app + "|").getBytes()),
+                                Range.Boundary.excluding((app + "}").getBytes()))));
+                futures.add(commands.zrangebylex("kafkauser2roleidx".getBytes(),
+                        Range.from(Range.Boundary.including((user + "|").getBytes()),
+                                Range.Boundary.excluding((user + "}").getBytes()))));
+                futures.add(commands.zrangebylex("app2ridx".getBytes(),
+                        Range.from(Range.Boundary.including((app + "|").getBytes()),
+                                Range.Boundary.excluding((app + "}").getBytes()))));
+
+                // write all commands to the transport layer
+                commands.flushCommands();
+
+                CompletionStage<Map<String, ResourceNode>> resourceNodeMap = futures.get(0).thenApplyAsync(
+                        new Function<List<byte[]>, Map<String, ResourceNode>>() {
+
+                            @Override
+                            public Map<String, ResourceNode> apply(List<byte[]> bytes) {
+                                Map<String, ResourceNode> resourceNodeMap = new HashMap<>();
+                                for (byte[] appResBytes : bytes) {
+                                    String appRes = new String(appResBytes);
+                                    int pos = appRes.lastIndexOf(ResourceNode.RES_SEP);
+                                    if (-1 == pos) {
+                                        pos = appRes.indexOf(ResourceNode.APP_SEP);
+                                    }
+                                    String name = appRes.substring(pos + 1);
+                                    String parentFqn = appRes.substring(0, pos);
+                                    ResourceNode resourceNode = new ResourceNode(name, parentFqn);
+                                    resourceNodeMap.put(appRes, resourceNode);
+                                    ResourceNode parentNode = resourceNodeMap.get(parentFqn);
+                                    if (null != parentNode) {
+                                        parentNode.addChild(resourceNode);
+                                    } else {
+                                        //logger.warn("No parent for " + resourceNode.getFqn());
+                                    }
+                                }
+                                if (resourceNodeMap.size() != 781) {
+                                    logger.error("Wrong resourceNodeMap: {}", resourceNodeMap);
+                                }
+                                return resourceNodeMap;
+                            }
+                        }, cachedThreadPool
+                );
+
+                CompletionStage<Set<String>> userRoleSet = futures.get(1).thenApplyAsync(
+                        new Function<List<byte[]>, Set<String>>() {
+
+                            @Override
+                            public Set<String> apply(List<byte[]> bytes) {
+                                Set<String> roles = new HashSet<String>();
+                                for (byte[] u2rBytes : bytes) {
+                                    String u2r = new String(u2rBytes);
+                                    roles.add(u2r.split("\\|")[1]);
+                                }
+                                return roles;
+                            }
+                        }, cachedThreadPool
+                );
+
+                CompletionStage<Map<String, Set<String>>> r2rMap = futures.get(2).thenApplyAsync(
+                        new Function<List<byte[]>, Map<String, Set<String>>>() {
+
+                            @Override
+                            public Map<String, Set<String>> apply(List<byte[]> bytes) {
+                                Map<String, Set<String>> r2rMap = new HashMap<>();
+                                for (byte[] app2rBytes : bytes) {
+                                    String app2r = new String(app2rBytes);
+                                    String[] arr = app2r.split("\\|");
+                                    if (3 == arr.length) {
+                                        String roleName = arr[1];
+                                        String res = arr[2];
+                                        Set<String> resSet = r2rMap.get(roleName);
+                                        if (null == resSet) {
+                                            resSet = new HashSet<String>();
+                                            r2rMap.put(roleName, resSet);
+                                        }
+                                        resSet.add(arr[0]+'|'+res);
+                                    }
+                                }
+                                return r2rMap;
+                            }
+                        }, cachedThreadPool
+                );
+
+                CompletionStage<Set<String>> mappedResSet = userRoleSet.thenCombine(r2rMap,
+                        new BiFunction<Set<String>, Map<String, Set<String>>, Set<String>>() {
+                            @Override
+                            public Set<String> apply(Set<String> user2RoleSet, Map<String, Set<String>> r2rMap) {
+                                Set<String> mappedResSet = new HashSet<>();
+                                for (String role : user2RoleSet) {
+                                    Set<String> resSet = r2rMap.get(role);
+                                    if (null != resSet) {
+                                        mappedResSet.addAll(resSet);
+                                    }
+                                }
+                                return mappedResSet;
+                            }
+                        }
+
+                );
+
+                CompletionStage<Set<String>> resSet = mappedResSet.thenCombine(resourceNodeMap,
+                        new BiFunction<Set<String>, Map<String, ResourceNode>, Set<String>>() {
+                            @Override
+                            public Set<String> apply(Set<String> mappedResSet, Map<String, ResourceNode> resourceNodeMap) {
+                                Set<String> resSet = new HashSet<>();
+
+                                for (String mappedRes : mappedResSet) {
+                                    ResourceNode resourceNode = resourceNodeMap.get(mappedRes);
+                                    if (null != resourceNode) {
+                                        resSet.add(mappedRes);
+                                        List<ResourceNode> descendants = resourceNode.getDescendants();
+                                        for (ResourceNode descendant : descendants) {
+                                            resSet.add(descendant.getFqn());
+                                        }
+                                    }
+                                }
+
+                                return resSet;
+                            }
+                        });
+                try {
+                    ret = resSet.toCompletableFuture().get();
+                } catch (Exception e) {
+                    logger.error("Catch error", e);
+                }
+                logger.debug("we are here");
+            } else {
+                logger.error("Fail to get connection");
+            }
+        } finally {
+            releaseLettuceConnection(conn);
+        }
+
+        /*if (ret.size() != 194) {
+            logger.error("Fail to process, ret: {}", ret);
+        }*/
+        long et = System.currentTimeMillis();
+        logger.info("Authz user {} with app {} cost {} ms", user, app, et-bt);
+        return ret;
+
     }
 }
