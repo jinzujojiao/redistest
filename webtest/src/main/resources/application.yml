@@ -12,8 +12,6 @@ server:
     threads:
       max: 600
     max-connections: 24000
-  http2:
-    enabled: true
 management:
   server:
     port: 8081

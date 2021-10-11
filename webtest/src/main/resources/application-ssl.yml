@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: redistest
+  zipkin:
+    baseUrl: http://vm-lijjin-nprd-rtp-2:9411/
+    service:
+      name: redistest
+server:
+  compression:
+    enabled: true
+  tomcat:
+    threads:
+      max: 600
+    max-connections: 24000
+  ssl:
+    key-store: cert/keystore.p12
+    key-store-password: openssl
+  http2:
+    enabled: true
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        exclude: "env,beans"

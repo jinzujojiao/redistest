@@ -629,6 +629,7 @@ public class RedisTestService {
 
     @GetMapping("/authorize4/{user}")
     public Set<String> authorize4(@PathVariable("user")String user, @RequestParam String app) {
+        logger.debug("start authorize4");
         long seq = random.nextLong();
         long bt = System.currentTimeMillis();
         long bt1 = bt;
@@ -661,6 +662,7 @@ public class RedisTestService {
 
                             @Override
                             public Map<String, ResourceNode> apply(List<byte[]> bytes) {
+                                logger.debug("start futures0 apply");
                                 Map<String, ResourceNode> resourceNodeMap = new HashMap<>();
                                 for (byte[] appResBytes : bytes) {
                                     String appRes = new String(appResBytes);
@@ -692,6 +694,7 @@ public class RedisTestService {
 
                             @Override
                             public Set<String> apply(List<byte[]> bytes) {
+                                logger.debug("start futures1 apply");
                                 Set<String> roles = new HashSet<String>();
                                 for (byte[] u2rBytes : bytes) {
                                     String u2r = new String(u2rBytes);
@@ -707,6 +710,7 @@ public class RedisTestService {
 
                             @Override
                             public Map<String, Set<String>> apply(List<byte[]> bytes) {
+                                logger.debug("start futures2 apply");
                                 Map<String, Set<String>> r2rMap = new HashMap<>();
                                 for (byte[] app2rBytes : bytes) {
                                     String app2r = new String(app2rBytes);
@@ -731,6 +735,7 @@ public class RedisTestService {
                         new BiFunction<Set<String>, Map<String, Set<String>>, Set<String>>() {
                             @Override
                             public Set<String> apply(Set<String> user2RoleSet, Map<String, Set<String>> r2rMap) {
+                                logger.debug("start userrole r2r combine");
                                 Set<String> mappedResSet = new HashSet<>();
                                 for (String role : user2RoleSet) {
                                     Set<String> resSet = r2rMap.get(role);
@@ -748,6 +753,7 @@ public class RedisTestService {
                         new BiFunction<Set<String>, Map<String, ResourceNode>, Set<String>>() {
                             @Override
                             public Set<String> apply(Set<String> mappedResSet, Map<String, ResourceNode> resourceNodeMap) {
+                                logger.debug("start mappedres resourcenodemap combine");
                                 Set<String> resSet = new HashSet<>();
 
                                 for (String mappedRes : mappedResSet) {
