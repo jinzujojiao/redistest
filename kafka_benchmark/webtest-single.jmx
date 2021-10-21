@@ -50,7 +50,7 @@
           <stringProp name="HTTPSampler.domain">vm-lijjin-nprd-alln-kubenode3</stringProp>
           <stringProp name="HTTPSampler.port">443</stringProp>
           <stringProp name="HTTPSampler.protocol">https</stringProp>
-          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding">gzip</stringProp>
           <stringProp name="HTTPSampler.path">/test/authorize/user${UserCount}</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
