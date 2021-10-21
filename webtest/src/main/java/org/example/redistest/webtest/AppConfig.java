@@ -4,7 +4,12 @@ import io.lettuce.core.ClientOptions;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.tracing.BraveTracing;
+import org.apache.catalina.connector.Connector;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.apache.coyote.http2.Http2Protocol;
+import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -15,6 +20,7 @@ import org.springframework.data.redis.connection.lettuce.LettucePoolingClientCon
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
+import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -90,5 +96,26 @@ public class AppConfig {
     @Bean
     public Executor cachedThreadPool() {
         return Executors.newCachedThreadPool();
+    }
+
+    @Bean
+    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> containerCustomizer() {
+        return new WebServerFactoryCustomizer<TomcatServletWebServerFactory>() {
+            @Override
+            public void customize(TomcatServletWebServerFactory factory) {
+                factory.addConnectorCustomizers(new TomcatConnectorCustomizer() {
+                    @Override
+                    public void customize(Connector connector) {
+                        Arrays.stream(connector.getProtocolHandler().findUpgradeProtocols())
+                                .filter(upgradeProtocol -> upgradeProtocol instanceof Http2Protocol)
+                                .map(upgradeProtocol -> (Http2Protocol) upgradeProtocol)
+                                .forEach(http2Protocol -> {
+                                    //http2Protocol.setMaxConcurrentStreamExecution(100);
+                                    http2Protocol.setMaxConcurrentStreams(100);
+                                });
+                    }
+                });
+            }
+        };
     }
 }

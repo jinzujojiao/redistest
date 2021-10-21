@@ -7,10 +7,13 @@ import javax.sql.DataSource;
 
 public abstract class AbstractDao {
 
-    protected JdbcTemplate jdbcTemplate;
+    protected JdbcTemplate masterJdbcTemplate;
 
-    public AbstractDao(DataSource redistestDataSource) {
-        this.jdbcTemplate = new JdbcTemplate(redistestDataSource);
+    protected JdbcTemplate slaveJdbcTemplate;
+
+    public AbstractDao(DataSource masterDataSource, DataSource slaveDataSource) {
+        this.masterJdbcTemplate = new JdbcTemplate(masterDataSource);
+        this.slaveJdbcTemplate = new JdbcTemplate(slaveDataSource);
     }
 
 }

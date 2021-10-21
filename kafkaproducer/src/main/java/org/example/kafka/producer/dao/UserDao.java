@@ -15,15 +15,19 @@ public class UserDao extends AbstractDao {
     private static Logger logger = LoggerFactory.getLogger(UserDao.class);
 
     @Autowired
-    public UserDao(DataSource redistestDataSource) {
-        super(redistestDataSource);
+    public UserDao(DataSource masterDataSource, DataSource slaveDataSource) {
+
+        super(masterDataSource, slaveDataSource);
     }
 
     public User findUserByName(String name) {
         User user = null;
         try {
-            user = jdbcTemplate.queryForObject("select * from users where name=?",
+            long bt = System.currentTimeMillis();
+            user = slaveJdbcTemplate.queryForObject("select * from users where name=?",
                     new Object[]{name}, new UserRowMapper());
+            long et = System.currentTimeMillis();
+            //logger.info("findUserByName cost {} ms", et-bt);
         } catch (EmptyResultDataAccessException emptyExp) {
             logger.warn("User {} does not exist", name);
         }

@@ -1,0 +1,34 @@
+{
+  "Total" : {
+    "transaction" : "Total",
+    "sampleCount" : 897920,
+    "errorCount" : 0,
+    "errorPct" : 0.0,
+    "meanResTime" : 99.13667698681238,
+    "medianResTime" : 22.0,
+    "minResTime" : 4.0,
+    "maxResTime" : 16415.0,
+    "pct1ResTime" : 183.0,
+    "pct2ResTime" : 212.0,
+    "pct3ResTime" : 220.0,
+    "throughput" : 978.8610405849271,
+    "receivedKBytesPerSec" : 7635.880851750388,
+    "sentKBytesPerSec" : 159.520188925498
+  },
+  "AuthzUser" : {
+    "transaction" : "AuthzUser",
+    "sampleCount" : 897920,
+    "errorCount" : 0,
+    "errorPct" : 0.0,
+    "meanResTime" : 99.13667698681238,
+    "medianResTime" : 22.0,
+    "minResTime" : 4.0,
+    "maxResTime" : 16415.0,
+    "pct1ResTime" : 183.0,
+    "pct2ResTime" : 212.0,
+    "pct3ResTime" : 220.0,
+    "throughput" : 978.8610405849271,
+    "receivedKBytesPerSec" : 7635.880851750388,
+    "sentKBytesPerSec" : 159.520188925498
+  }
+}
