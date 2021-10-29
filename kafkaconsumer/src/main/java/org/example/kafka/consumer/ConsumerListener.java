@@ -36,14 +36,14 @@ public class ConsumerListener {
             topicPartitions =
                     { @TopicPartition(topic = "user2role",
                             /* partitions and partitionOffsets can not be used together only except partition is * in partitionOffsets */
-                            //partitions = { "0", "1", "2" }, partitionOffsets = @PartitionOffset(partition = "*", initialOffset = "0", relativeToCurrent="true"))
-                            partitionOffsets = @PartitionOffset(partition = "2", initialOffset = "0", relativeToCurrent="true"))
+                            partitions = { "0", "1", "2" }, partitionOffsets = @PartitionOffset(partition = "*", initialOffset = "0", relativeToCurrent="true"))
+                            //partitionOffsets = @PartitionOffset(partition = "2", initialOffset = "0", relativeToCurrent="true"))
                     },
             //topics = "user2role",
             clientIdPrefix = "testClientId", groupId = "testgroup", containerFactory="kafkaManualListenerContainerFactory")
     public void userRoleListen(List<UserRoleMapping> data, Acknowledgment ack) {
         logger.info("userRoleListen Receive UserRoleMapping");
-        /*logger.info("userRoleListen Receive UserRoleMapping: "+data);
+        logger.info("userRoleListen Receive UserRoleMapping: "+data);
 
 
         List results = redisTemplate.executePipelined(
@@ -67,7 +67,7 @@ public class ConsumerListener {
                         return null;
                     }
                 });
-        logger.info("results of pipeline: "+results);*/
+        logger.info("results of pipeline: "+results);
         ack.acknowledge();
     }
 

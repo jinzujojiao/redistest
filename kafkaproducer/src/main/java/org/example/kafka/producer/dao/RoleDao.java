@@ -15,15 +15,19 @@ public class RoleDao extends AbstractDao {
     private static Logger logger = LoggerFactory.getLogger(RoleDao.class);
 
     @Autowired
-    public RoleDao(DataSource redistestDataSource) {
-        super(redistestDataSource);
+    public RoleDao(DataSource masterDataSource, DataSource slaveDataSource) {
+
+        super(masterDataSource, slaveDataSource);
     }
 
     public Role findRoleByName(String name) {
         Role role = null;
         try {
-            role = jdbcTemplate.queryForObject("select * from roles where name=?",
+            long bt = System.currentTimeMillis();
+            role = slaveJdbcTemplate.queryForObject("select * from roles where name=?",
                     new Object[]{name}, new RoleRowMapper());
+            long et = System.currentTimeMillis();
+            //logger.info("findRoleByName cost {} ms", et-bt);
         } catch (EmptyResultDataAccessException emptyExp) {
             logger.warn("Role {} does not exist", name);
         }
