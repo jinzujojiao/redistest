@@ -1,6 +1,6 @@
 package org.example.kafka.consumer;
 
-import org.example.kafka.common.dto.AppRes;
+import org.example.kafka.common.dto.RoleResourceMapping;
 import org.example.kafka.common.dto.UserRoleMapping;
 import org.example.kafka.consumer.redis.command.IllegalCommandException;
 import org.example.kafka.consumer.redis.command.MsgRedisCommand;
@@ -30,6 +30,7 @@ public class ConsumerListener {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    // manually assign partitions. Since it is not controlled by kafka group coordinator, the consumer client cannot be shown by kafka-consumer-groups.sh
     // If test and test0 connect to the same partition, one of them will get message as they are in the same group
     @KafkaListener(id = "test",
             //topicPartitions = {@TopicPartition(topic = "user2role", partitions = { "0"}, partitionOffsets = @PartitionOffset(partition = "0", initialOffset = "0"))},
@@ -42,8 +43,7 @@ public class ConsumerListener {
             //topics = "user2role",
             clientIdPrefix = "testClientId", groupId = "testgroup", containerFactory="kafkaManualListenerContainerFactory")
     public void userRoleListen(List<UserRoleMapping> data, Acknowledgment ack) {
-        logger.info("userRoleListen Receive UserRoleMapping");
-        logger.info("userRoleListen Receive UserRoleMapping: "+data);
+        logger.debug("userRoleListen Receive UserRoleMapping: {}", data);
 
 
         List results = redisTemplate.executePipelined(
@@ -54,6 +54,46 @@ public class ConsumerListener {
                         List<MsgRedisCommand> commands = new ArrayList<>();
                         for (UserRoleMapping userRoleMapping : data) {
                             commands.add(MsgRedisCommandFactory.getRedisCommand(userRoleMapping));
+                        }
+                        for (MsgRedisCommand command : commands) {
+
+                            try {
+                                command.appendCommandForPipeline(redisTemplate, strConn);
+                            } catch (IllegalCommandException e) {
+                                logger.error("Illegal command", e);
+                                // add this message to an illegal message topic
+                            }
+                        }
+                        return null;
+                    }
+                });
+        logger.info("results of pipeline: "+results);
+        ack.acknowledge();
+    }
+
+    // Automatically assign partition. Controlled by kafka group coordinator.
+    @KafkaListener(id = "r2r",
+            //topicPartitions = {@TopicPartition(topic = "r2r", partitions = { "0"}, partitionOffsets = @PartitionOffset(partition = "0", initialOffset = "0"))},
+            /*topicPartitions =
+                    { @TopicPartition(topic = "r2r",
+                            *//* partitions and partitionOffsets can not be used together only except partition is * in partitionOffsets *//*
+                            //partitions = { "0" }, partitionOffsets = @PartitionOffset(partition = "*", initialOffset = "0", relativeToCurrent="true"))
+                            partitionOffsets = @PartitionOffset(partition = "0", initialOffset = "0", relativeToCurrent="true"))
+                    },*/
+            topics = "r2r",
+            clientIdPrefix = "testClientId", groupId = "testgroup", containerFactory="kafkaManualListenerContainerFactory")
+    public void roleResourceListen(List<RoleResourceMapping> data, Acknowledgment ack) {
+        logger.debug("roleResourceListen Receive roleResourceMapping: {}", data);
+
+
+        List results = redisTemplate.executePipelined(
+                new RedisCallback<Object>() {
+                    public Object doInRedis(RedisConnection connection) throws DataAccessException {
+                        long bt = System.currentTimeMillis();
+                        StringRedisConnection strConn = (StringRedisConnection)connection;
+                        List<MsgRedisCommand> commands = new ArrayList<>();
+                        for (RoleResourceMapping r2rMapping : data) {
+                            commands.add(MsgRedisCommandFactory.getRedisCommand(r2rMapping));
                         }
                         for (MsgRedisCommand command : commands) {
 

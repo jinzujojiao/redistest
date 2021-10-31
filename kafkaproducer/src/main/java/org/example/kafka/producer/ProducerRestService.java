@@ -3,11 +3,14 @@ package org.example.kafka.producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.example.kafka.common.dto.AppRes;
 import org.example.kafka.common.dto.KafkaMessage;
+import org.example.kafka.common.dto.RoleResourceMapping;
 import org.example.kafka.common.dto.UserRoleMapping;
+import org.example.kafka.producer.dao.RoleResourceDao;
 import org.example.kafka.producer.dao.UserRoleDao;
 import org.example.kafka.producer.dao.exception.DaoException;
 import org.example.kafka.producer.dao.exception.DataNotExistException;
 import org.example.kafka.producer.template.AppResTemplate;
+import org.example.kafka.producer.template.RoleResourceTemplate;
 import org.example.kafka.producer.template.UserRoleTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +34,13 @@ public class ProducerRestService {
     private AppResTemplate appResTemplate;
 
     @Autowired
+    private RoleResourceTemplate roleResourceTemplate;
+
+    @Autowired
     private UserRoleDao userRoleDao;
+
+    @Autowired
+    private RoleResourceDao roleResourceDao;
 
     @PostMapping("/user2role")
     public void user2Role(@RequestParam("user") String user, @RequestParam("role") String role) throws DaoException {
@@ -91,6 +100,32 @@ public class ProducerRestService {
             @Override
             public void onSuccess(SendResult<String, KafkaMessage> result) {
                 logger.info("Succeed in sending message: "+result);
+            }
+
+            @Override
+            public void onFailure(KafkaProducerException ex) {
+                ProducerRecord<String, KafkaMessage> failed = ex.getFailedProducerRecord();
+                logger.error("Fail to send message for "+failed, ex);
+            }
+
+        });
+    }
+
+    @PostMapping("/r2r")
+    public void role2Resource(@RequestParam("role") String role, @RequestParam("app") String app, @RequestParam("res") String resource)
+            throws DaoException {
+        if (roleResourceDao.create(role, app, resource) < 1) {
+            logger.warn("Role-Resource is not created for role {} and resource {} in app {}", role, resource, app);
+            return;
+        }
+
+        RoleResourceMapping roleRes = new RoleResourceMapping(role, app, resource, KafkaMessage.Action.ADD, System.currentTimeMillis());
+        ListenableFuture<SendResult<String, KafkaMessage>> future = roleResourceTemplate.send(roleRes);
+        future.addCallback(new KafkaSendCallback<String, KafkaMessage>() {
+
+            @Override
+            public void onSuccess(SendResult<String, KafkaMessage> result) {
+                logger.info("Succeed in sending add roleresource message: "+result);
             }
 
             @Override

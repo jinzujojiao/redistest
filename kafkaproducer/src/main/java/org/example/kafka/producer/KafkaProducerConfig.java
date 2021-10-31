@@ -4,6 +4,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.example.kafka.common.dto.KafkaMessage;
 import org.example.kafka.producer.template.AppResTemplate;
+import org.example.kafka.producer.template.RoleResourceTemplate;
 import org.example.kafka.producer.template.UserRoleTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,5 +50,10 @@ public class KafkaProducerConfig {
     @Bean
     public AppResTemplate appResTemplate() {
         return new AppResTemplate(this.kafkaTemplate());
+    }
+
+    @Bean
+    public RoleResourceTemplate roleResourceTemplate() {
+        return new RoleResourceTemplate(this.kafkaTemplate());
     }
 }

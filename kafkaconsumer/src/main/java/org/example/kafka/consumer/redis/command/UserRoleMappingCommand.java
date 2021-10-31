@@ -77,6 +77,7 @@ public class UserRoleMappingCommand extends AbstractMsgRedisCommand {
             logger.error(errMsg);
             throw new IllegalCommandException(errMsg);
         }
+        connection.multi();
         connection.zAdd(getIndexName().getBytes(StandardCharsets.UTF_8), 0, getRedisString().getBytes(StandardCharsets.UTF_8));
     }
 
