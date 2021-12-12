@@ -1,0 +1,26 @@
+FROM openjdk:17-alpine
+RUN apk update \
+  && apk add --update \
+    net-tools \
+    less
+
+ENV APP_ROOT=/apps
+ENV APP_USER=test
+ENV APP_JAR=webtest-1.0-SNAPSHOT.jar
+
+RUN addgroup ${APP_USER} &&\
+    adduser -G ${APP_USER} -h ${APP_ROOT} -s /sbin/nologin -D ${APP_USER}
+
+
+RUN mkdir -p ${APP_ROOT} &&\
+    mkdir -p ${APP_ROOT}/lib &&\
+    mkdir -p ${APP_ROOT}/log &&\
+    touch ${APP_ROOT}/log/gc.log
+
+COPY target/${APP_JAR} ${APP_ROOT}/lib
+COPY lib/jmx_prometheus_javaagent-0.16.1.jar ${APP_ROOT}/lib
+RUN chown -R ${APP_USER}:${APP_USER} ${APP_ROOT}
+
+WORKDIR ${APP_ROOT}
+USER ${APP_USER}
+ENTRYPOINT java ${JAVA_OPTS} -Xlog:gc*=debug:file=${APP_ROOT}/log/gc.log -jar ${APP_ROOT}/lib/${APP_JAR}
